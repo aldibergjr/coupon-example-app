@@ -20,6 +20,11 @@ public class CouponRestFunctions {
     public CouponRestFunctions(){
         fields = new String[]{"name" , "id", "store_ref", "isActive"};
     }
+    //Test constructor
+    public CouponRestFunctions(Object obj){
+        fields = new String[]{"name" , "id", "store_ref", "isActive"};
+        dbService = new DbServiceImpl(obj);
+    }
 
 	@PostMapping(value="/coupon/create",
 	consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})

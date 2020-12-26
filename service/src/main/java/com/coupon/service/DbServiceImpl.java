@@ -26,45 +26,81 @@ public class DbServiceImpl implements DbService {
     private String password;
     @Resource
     private Environment env;
-     
+    
+    private Connection con;
+
+    //Test Constructor
+    public DbServiceImpl(){
+        
+    }
+    public DbServiceImpl(Object con){
+        this.con = (Connection)con;
+    }
+
+
     @Override
     public int alterStm(String query, String[] data) {
-        try(Connection con =  DriverManager.getConnection(jdbcUrl, user, password);
-            PreparedStatement pstm = con.prepareStatement(query)){
-                for (int i = 1; i < data.length+1; i++) {
-                    pstm.setString(i, data[i-1]);
-                }
-                int res = pstm.executeUpdate();
-                return res;
+        PreparedStatement pstm = null;
+        try{
+            if(this.con == null)
+                this.con =  DriverManager.getConnection(jdbcUrl, user, password);
+                pstm = con.prepareStatement(query);
+            for (int i = 1; i < data.length+1; i++) {
+                pstm.setString(i, data[i-1]);
+            }
+            int res = pstm.executeUpdate();
+            return res;
         }catch(SQLException e){
             e.printStackTrace();
+        }finally{
+            try {
+                if(con != null)
+                    con.close();
+                if(pstm != null)
+                    pstm.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         // //Error
         return -1;
     }
     @Override
     public JSONObject returnStm(String query, String[] data, String[] fields) {
-        System.out.println(jdbcUrl);
-        try(Connection con =  DriverManager.getConnection(jdbcUrl, user, password);
-            PreparedStatement pstm = con.prepareStatement(query)){
-                for (int i = 1; i < data.length+1; i++) {
-                    pstm.setString(i, data[i-1]);
+        ResultSet req = null;
+        PreparedStatement pstm = null;
+        try{
+            if(this.con == null)
+                this.con =  DriverManager.getConnection(jdbcUrl, user, password);
+            pstm = con.prepareStatement(query);
+            for (int i = 1; i < data.length+1; i++) {
+                pstm.setString(i, data[i-1]);
+            }
+            req = pstm.executeQuery();
+            ArrayList<JSONObject> collection = new ArrayList<>();
+            while(req.next()){
+                JSONObject obj = new JSONObject();
+                for (int i = 0; i < fields.length; i++) {
+                    obj.put(fields[i], req.getString(fields[i]));
                 }
-                
-                ResultSet req = pstm.executeQuery();
-                ArrayList<JSONObject> collection = new ArrayList<>();
-                while(req.next()){
-                    JSONObject obj = new JSONObject();
-                    for (int i = 0; i < fields.length; i++) {
-                        obj.put(fields[i], req.getString(fields[i]));
-                    }
-                    collection.add(obj);
-                }
-                JSONObject res = new JSONObject();
-                res.put("data", collection);
-                return res;
+                collection.add(obj);
+            }
+            JSONObject res = new JSONObject();
+            res.put("data", collection);
+            return res;
         }catch(SQLException e){
             e.printStackTrace();
+        }finally{
+            try {
+                if(con != null)
+                    con.close();
+                if(pstm != null)
+                    pstm.close();
+                if(req != null)
+                    req.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         //Error
         return new JSONObject();

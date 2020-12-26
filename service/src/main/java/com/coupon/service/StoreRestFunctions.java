@@ -23,6 +23,11 @@ public class StoreRestFunctions {
     {
         fields = new String[]{"name", "id", "category"};
     }
+    public StoreRestFunctions(Object obj)
+    {
+        dbService = new DbServiceImpl(obj);
+        fields = new String[]{"name", "id", "category"};
+    }
 
     @PostMapping(value="/store/create",
 	consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
@@ -39,7 +44,7 @@ public class StoreRestFunctions {
         return res.toString();
     }
     @GetMapping(value="/getStores")
-    public String getAllCoupons(){
+    public String getAllStores(){
         String command = "SELECT * FROM stores";
         JSONObject res = dbService.returnStm(command, new String[]{}, fields);
         return res.toString();
