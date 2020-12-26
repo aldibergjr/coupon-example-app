@@ -1,9 +1,8 @@
 package com.coupon.service;
-import java.net.URI;
 import java.util.ArrayList;
 import org.json.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,59 +14,70 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class CouponRestFunctions {
+    String fields[];
+    @Autowired
+    private DbService dbService;
+    public CouponRestFunctions(){
+        fields = new String[]{"name" , "id", "store_ref", "isActive"};
+    }
 
-    public static ArrayList<Coupon> couponCollection = new ArrayList<>();
 	@PostMapping(value="/coupon/create",
-	consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
-	produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-	public ResponseEntity<String> create(@RequestBody Coupon request){
-        couponCollection.add(request);
-		return ResponseEntity.created(URI
-		.create("success")).body("{\"success\":true}");
+	consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+	public String create(@RequestBody Coupon request){
+        String command = "INSERT INTO coupons(name,store_ref,isActive) VALUES (?,cast(? as int),true)";
+        String data[] = {request.name, "" + request.store_ref};
+        int result = dbService.alterStm(command, data);
+		JSONObject res = new JSONObject();
+        if(result == 1)
+            res.put("success", true);
+        else
+        res.put("error", true);
+        return res.toString();
     }
     @GetMapping(value="/coupon/get")
     public String getCouponById(@RequestParam(value="id", defaultValue = "-1") String id){
-        Coupon aux = null;
+        
         System.out.println("looking for id: " + id);
-        //todo CHANGE REPOSITORY TYPE
-        for (Coupon coupon : couponCollection) {
-            if(coupon.id == Integer.parseInt(id))
-                aux = coupon;
-        }
-        JSONObject res = ((new JSONObject(aux)));
+        String command = "SELECT * FROM coupons WHERE id="+ id.trim();
+        String data[] = {};
+        JSONObject res = dbService.returnStm(command, data, fields);
         return res.toString();
     }
 
     @PutMapping(value="/coupon/toggle")
     public String changeState(@RequestParam(value="id", defaultValue = "-1") String id){
         
-        //todo CHANGE REPOSITORY TYPE
-        for (Coupon coupon : couponCollection) {
-            if(coupon.id == Integer.parseInt(id))
-                coupon.isActive = !coupon.isActive;
-        }
+
+        String command = "UPDATE coupons SET isActive = NOT isActive WHERE id= ?"+ id.trim();
+        String data[] = {};
+        int result = dbService.alterStm(command, data);
 
         JSONObject res = new JSONObject();
-        res.put("success", true);
+        if(result == 1)
+            res.put("success", true);
+        else
+        res.put("error", true);
         return res.toString();
     }
     @DeleteMapping(value="/coupon/delete")
     public String deleteById(@RequestParam(value="id", defaultValue = "-1") String id){
         
-        //todo CHANGE REPOSITORY TYPE
-        for (Coupon coupon : couponCollection) {
-            if(coupon.id == Integer.parseInt(id))
-                couponCollection.remove(coupon);
-        }
+        String command = "DELETE FROM coupons WHERE id= ?"+ id.trim();
+        String data[] = {};
+        int result = dbService.alterStm(command, data);
 
         JSONObject res = new JSONObject();
-        res.put("success", true);
+        if(result == 1)
+            res.put("success", true);
+        else
+        res.put("error", true);
         return res.toString();
     }
+
     @GetMapping(value="/getCoupons")
     public String getAllCoupons(){
-        JSONObject res = new JSONObject();
-        res.put("coupons", couponCollection);
+        String command = "SELECT * FROM coupons";
+        JSONObject res = dbService.returnStm(command, new String[]{}, fields);
         return res.toString();
     }
 
