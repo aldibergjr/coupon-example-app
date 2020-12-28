@@ -1,0 +1,63 @@
+<!--The content below is only a placeholder and can be replaced.-->
+<!-- <ActionBar [title]="title"></ActionBar>
+<StackLayout  class="p-20">
+    <Label [text]="'Welcome to ' + title + '!'" class="h1 text-center" textWrap="true"></Label>
+</StackLayout> -->
+
+<BottomNavigation>
+    <TabStrip>
+        <TabStripItem>
+            <Label text="Coupons"></Label>
+            <Image src="~/icon.png"></Image>
+        </TabStripItem>
+        <TabStripItem>
+            <Label text="Stores"></Label>
+            <Image src="~/icon.png"></Image>
+        </TabStripItem>
+    </TabStrip>
+
+    <TabContentItem style="position: relative; height: 100%;">
+        <GridLayout>
+            
+            <ScrollView class="page">
+                <StackLayout>
+                    <!-- On Android the card view plugin requires adding an external library
+                        therefore it can't be demoed on Playground. You will have to download this project
+                        and build it locally to try it on Android -->
+                    <CardView *ngFor="let coupon of coupons"  class="card" elevation="40" radius="10" ios:shadowRadius="3">
+                        <StackLayout class="card-layout">
+                            <Label class="h2" [text]="coupon.name"></Label>
+                            <Label class="body" textWrap="true" [text]="coupon.store_ref"></Label>
+                        </StackLayout>
+                    </CardView>
+                </StackLayout>
+            </ScrollView>
+            <FAB (tap)="addCoupon()"  icon="~/assets/add.png" rippleColor="#f1f1f1" class="fab-button"></FAB>
+        </GridLayout>
+    </TabContentItem>
+
+
+
+    <TabContentItem>
+        <GridLayout>
+            <ScrollView class="page">
+                <StackLayout>
+                    <!-- On Android the card view plugin requires adding an external library
+                        therefore it can't be demoed on Playground. You will have to download this project
+                        and build it locally to try it on Android -->
+                    <CardView *ngFor="let store of stores"  class="card" elevation="40" radius="10" ios:shadowRadius="3">
+                        <StackLayout class="card-layout">
+                            <Label class="h2" [text]="store.name"></Label>
+                            <Label class="body" textWrap="true" [text]="store.category"></Label>
+                        </StackLayout>
+                    </CardView>
+                </StackLayout>
+            </ScrollView>
+            <FAB (tap)="addStore()"  icon="~/assets/add.png" rippleColor="#f1f1f1" class="fab-button"></FAB>
+        </GridLayout>
+    </TabContentItem>
+
+
+
+
+</BottomNavigation>

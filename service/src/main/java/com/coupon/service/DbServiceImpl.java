@@ -58,6 +58,8 @@ public class DbServiceImpl implements DbService {
                     con.close();
                 if(pstm != null)
                     pstm.close();
+
+                con = null;
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -98,6 +100,8 @@ public class DbServiceImpl implements DbService {
                     pstm.close();
                 if(req != null)
                     req.close();
+
+                con = null;
             } catch (SQLException e) {
                 e.printStackTrace();
             }
